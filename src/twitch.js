@@ -1,4 +1,5 @@
 require('dotenv').config();
+const fs = require('fs/promises');
 
 const WebSocket = require('ws');
 const PORT = process.env.PORT;
@@ -6,13 +7,10 @@ const ws = new WebSocket(`ws://localhost:${PORT}`);
 const {buildRequest, pollPosition, changeModels, spinModel} = require('./utils');
 
 const {ApiClient} = require('twitch');
-const {StaticAuthProvider} = require('twitch-auth');
+const {RefreshableAuthProvider, StaticAuthProvider} = require('twitch-auth');
 const {PubSubClient} = require('twitch-pubsub-client');
 const clientId = process.env.TWITCH_CLIENT;
-const accessToken = process.env.TWITCH_ACCESS;
-const authProvider = new StaticAuthProvider(clientId, accessToken);
-const apiClient = new ApiClient({authProvider});
-const pubSubClient = new PubSubClient();
+const clientSecret = process.env.TWITCH_SECRET;
 
 let currX = 0;
 let currY = 0;
@@ -30,11 +28,30 @@ ws.on('message', (message) => {
     currX = curr.positionX;
     currY = curr.positionY;
     currSize = curr.size;
-    console.log(data);
   }
 });
 
 async function main() {
+  const tokenData = JSON.parse(await fs.readFile('./tokens.json', 'UTF-8'));
+  const authProvider = new RefreshableAuthProvider(
+      new StaticAuthProvider(clientId, tokenData.accessToken),
+      {
+        clientSecret,
+        refreshToken: tokenData.refreshToken,
+        expiry: tokenData.expiryTimestamp === null ? null : new Date(tokenData.expiryTimestamp),
+        onRefresh: async ({accessToken, refreshToken, expiryDate}) => {
+          const newTokenData = {
+            accessToken,
+            refreshToken,
+            expiryTimestamp: expiryDate === null ? null : expiryDate.getTime(),
+          };
+          await fs.writeFile('./tokens.json', JSON.stringify(newTokenData, null, 4), 'UTF-8');
+        },
+      },
+  );
+  const apiClient = new ApiClient({authProvider});
+  const pubSubClient = new PubSubClient();
+
   if (ws.readyState === 0) {
     setTimeout(main, 500);
   } else {
