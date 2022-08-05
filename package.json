@@ -1,0 +1,39 @@
+{
+  "name": "vstreamredeems",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "twitch": "^4.6.7",
+    "twitch-auth": "^4.6.7",
+    "twitch-pubsub-client": "^4.6.7",
+    "ws": "^8.8.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.21.0",
+    "eslint-config-google": "^0.14.0"
+  },
+  "eslintConfig": {
+    "env": {
+      "node": true,
+      "es6": true
+    },
+    "extends": [
+      "eslint:recommended",
+      "google"
+    ],
+    "rules": {
+      "require-jsdoc": 0,
+      "max-len": 0
+    },
+    "parserOptions": {
+      "ecmaVersion": 8
+    }
+  }
+}
