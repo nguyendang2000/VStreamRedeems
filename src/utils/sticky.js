@@ -14,6 +14,7 @@ async function stickyApproved(stickerText) {
     await axios.post(`${process.env.VALIDATOR_URL}/message`, form);
   } catch (err) {
     console.log('Error with message POST');
+    console.log(err.message);
   }
   while (!status || status === 'Review') {
     try {
