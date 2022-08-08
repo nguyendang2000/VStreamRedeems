@@ -42,7 +42,7 @@ function buildRequest(requestType, params) {
   } else if (requestType === 'modelMove') {
     request['messageType'] = 'MoveModelRequest';
     request['data'] = {
-      'timeInSeconds': params['timeInSeconds'],
+      'timeInSeconds': params['timeInSeconds'] || 2,
       'valuesAreRelativeToModel': params['valuesAreRelativeToModel'],
       'positionX': params['positionX'],
       'positionY': params['positionY'],
@@ -117,11 +117,15 @@ function changeModels(ws, modelID) {
 function spinModel(ws) {
   ws.send(buildRequest('modelMove', {timeInSeconds: 2, valuesAreRelativeToModel: true, rotation: 180}));
   setTimeout(() => {
-    ws.send(buildRequest('modelMove', {timeInSeconds: 2, valuesAreRelativeToModel: false, rotation: -359}));
+    ws.send(buildRequest('modelMove', {timeInSeconds: 2, valuesAreRelativeToModel: true, rotation: -90}));
     setTimeout(() => {
       ws.send(buildRequest('modelMove', {timeInSeconds: 2, valuesAreRelativeToModel: false, rotation: 0}));
-    }, 300);
-  }, 2000);
+    }, 200);
+  }, 1000);
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 module.exports = {
@@ -130,4 +134,5 @@ module.exports = {
   pollPosition: pollPosition,
   changeModels: changeModels,
   spinModel: spinModel,
+  sleep: sleep,
 };

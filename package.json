@@ -9,7 +9,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "axios": "^0.27.2",
+    "canvas": "^2.9.3",
     "dotenv": "^16.0.1",
+    "form-data": "^4.0.0",
     "twitch": "^4.6.7",
     "twitch-auth": "^4.6.7",
     "twitch-pubsub-client": "^4.6.7",
