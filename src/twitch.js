@@ -83,11 +83,18 @@ async function main() {
           }, 1000);
           break;
         case 'Model Change (Jelly Tech Tips)':
+        {
+          const prevY = currY;
           changeModels(ws, process.env.MODEL_JTT);
           setTimeout(() => {
-            ws.send(buildRequest('modelMove', {timeInSeconds: 0.5, valuesAreRelativeToModel: false, positionX: currX, positionY: -0.4, size: currSize}));
+            ws.send(buildRequest('modelMove', {valuesAreRelativeToModel: false, positionX: currX, positionY: -0.4, size: currSize}));
           }, 1000);
+          setTimeout(() => {
+            Math.random() < 0.5 ? changeModels(ws, process.env.MODEL_BLUE) : changeModels(ws, process.env.MODEL_PINK);
+            ws.send(buildRequest('modelMove', {valuesAreRelativeToModel: false, positionX: currX, positionY: prevY, size: currSize}));
+          }, process.env.JTT_DURATION);
           break;
+        }
         case 'Spin':
           spinModel(ws);
           break;
@@ -111,9 +118,7 @@ async function main() {
             await processSticky(redemption.message);
             ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.STICKY_BLUE}));
             ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.STICKY_PINK}));
-            setTimeout(async () => {
-              await closeSticky();
-            }, process.env.STICKY_DURATION);
+            closeSticky();
           })();
           break;
       }
