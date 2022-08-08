@@ -4,7 +4,7 @@ const path = require('path');
 const axios = require('axios');
 const FormData = require('form-data');
 const {createCanvas, loadImage} = require('canvas');
-const {sleep} = require('../utils');
+const {sleep} = require('./utils');
 
 async function stickyApproved(stickerText) {
   let status;
