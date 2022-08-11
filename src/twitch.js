@@ -15,6 +15,8 @@ const clientSecret = process.env.TWITCH_SECRET;
 let currX = 0;
 let currY = 0;
 let currSize = -50;
+let prevPos = {x: currX, y: currY, size: currSize};
+
 
 ws.on('open', () => {
   ws.send(buildRequest('auth'));
@@ -106,7 +108,9 @@ async function main() {
           break;
         case 'Gigantamax Jelly':
         {
-          const prevPos = {x: currX, y: currY, size: currSize};
+          if (currSize < process.env.GIGA_REVERT_THRESHOLD) {
+            prevPos = {x: currX, y: currY, size: currSize};
+          }
           ws.send(buildRequest('modelMove', {valuesAreRelativeToModel: false, positionX: 0, positionY: -4.5, size: 100}));
           setTimeout(() => {
             ws.send(buildRequest('modelMove', {valuesAreRelativeToModel: false, positionX: prevPos.x, positionY: prevPos.y, size: prevPos.size}));
