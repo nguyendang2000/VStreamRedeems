@@ -12,6 +12,7 @@ const {PubSubClient} = require('twitch-pubsub-client');
 const clientId = process.env.TWITCH_CLIENT;
 const clientSecret = process.env.TWITCH_SECRET;
 
+let currModel = '';
 let currX = 0;
 let currY = 0;
 let currSize = -50;
@@ -25,6 +26,7 @@ ws.on('message', (message) => {
   const response = JSON.parse(message);
   const data = response.data;
   if (response.messageType === 'CurrentModelResponse') {
+    currModel = data.modelID;
     const curr = data.modelPosition;
     currX = curr.positionX;
     currY = curr.positionY;
@@ -63,35 +65,48 @@ async function main() {
     await pubSubClient.onRedemption(userId, (redemption) => { // PubSubRedemptionMessage
       switch (redemption.rewardName) {
         case 'Headpat':
-          ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.HEADPAT_BLUE}));
-          ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.HEADPAT_PINK}));
+          if (currModel === process.env.MODEL_BLUE) {
+            ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.HEADPAT_BLUE}));
+          } else if (currModel === process.env.MODEL_PINK) {
+            ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.HEADPAT_PINK}));
+          }
           break;
         case 'Cat Ears on/off':
-          ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.EARS_BLUE}));
-          ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.EARS_PINK}));
+          if (currModel === process.env.MODEL_BLUE) {
+            ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.EARS_BLUE}));
+          } else if (currModel === process.env.MODEL_PINK) {
+            ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.EARS_PINK}));
+          }
           break;
         case 'Baby Hat on/off':
-          ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.HAT_BLUE}));
-          ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.HAT_PINK}));
+          if (currModel === process.env.MODEL_BLUE) {
+            ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.HAT_BLUE}));
+          } else if (currModel === process.env.MODEL_PINK) {
+            ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.HAT_PINK}));
+          }
           break;
         case 'Model Change (Blue)':
-          changeModels(ws, process.env.MODEL_BLUE);
-          setTimeout(() => {
-            ws.send(buildRequest('modelMove', {valuesAreRelativeToModel: false, positionX: currX, positionY: currY, size: currSize}));
-          }, 1000);
+          if (currModel !== process.env.MODEL_BLUE) {
+            changeModels(ws, process.env.MODEL_BLUE);
+            setTimeout(() => {
+              ws.send(buildRequest('modelMove', {valuesAreRelativeToModel: false, positionX: currX, positionY: currY, size: currSize}));
+            }, 1000);
+          }
           break;
         case 'Model Change (Pink)':
-          changeModels(ws, process.env.MODEL_PINK);
-          setTimeout(() => {
-            ws.send(buildRequest('modelMove', {valuesAreRelativeToModel: false, positionX: currX, positionY: currY, size: currSize}));
-          }, 1000);
+          if (currModel !== process.env.MODEL_PINK) {
+            changeModels(ws, process.env.MODEL_PINK);
+            setTimeout(() => {
+              ws.send(buildRequest('modelMove', {valuesAreRelativeToModel: false, positionX: currX, positionY: currY, size: currSize}));
+            }, 1000);
+          }
           break;
         case 'Model Change (Jelly Tech Tips)':
         {
           const prevY = currY;
           changeModels(ws, process.env.MODEL_JTT);
           setTimeout(() => {
-            ws.send(buildRequest('modelMove', {valuesAreRelativeToModel: false, positionX: currX, positionY: -0.4, size: currSize}));
+            ws.send(buildRequest('modelMove', {valuesAreRelativeToModel: false, positionX: currX, positionY: currY, size: currSize}));
           }, 1000);
           setTimeout(() => {
             Math.random() < 0.5 ? changeModels(ws, process.env.MODEL_BLUE) : changeModels(ws, process.env.MODEL_PINK);
@@ -119,8 +134,11 @@ async function main() {
         case 'Forehead Sticky':
           (async () => {
             await processSticky(redemption.message);
-            ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.STICKY_BLUE}));
-            ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.STICKY_PINK}));
+            if (currModel === process.env.MODEL_BLUE) {
+              ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.STICKY_BLUE}));
+            } else if (currModel === process.env.MODEL_PINK) {
+              ws.send(buildRequest('hotkeyToggle', {hotkeyID: process.env.STICKY_PINK}));
+            }
             closeSticky();
           })();
           break;
