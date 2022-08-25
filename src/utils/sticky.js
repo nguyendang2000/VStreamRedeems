@@ -61,7 +61,8 @@ async function createStickyFile(text) {
   ctx.textBaseline = 'middle';
   ctx.font = '60px Comic Sans MS';
 
-  const newSticky = await loadImage(path.join(process.env.ITEMS_DIRECTORY, process.env.STICKY_TEMPLATE));
+  const randomSticky = `Sticky${Math.round(Math.random() * 3)}.png`;
+  const newSticky = await loadImage(path.join(process.env.ITEMS_DIRECTORY, randomSticky));
   ctx.drawImage(newSticky, 0, 0, 550, 550);
   addText(ctx, canvas, text, 500, 55, 4);
   canvas.createPNGStream().pipe(fs.createWriteStream(path.join(process.env.ITEMS_DIRECTORY, process.env.STICKY_OUTPUT)));
